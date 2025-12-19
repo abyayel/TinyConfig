@@ -1,0 +1,11 @@
+server:
+  port: 8080
+  name: "TinyConfig Server"
+
+database:
+  connectionPool: 10
+  timeout: 5000
+
+features:
+  cache: false
+  analytics: true
