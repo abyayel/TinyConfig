@@ -1,7 +1,7 @@
 /**
- * Deep merge two objects
- * @param {Object} target - Target object
- * @param {Object} source - Source object
+ * Deep merge two objects (source OVERRIDES target)
+ * @param {Object} target - Target object (lower priority)
+ * @param {Object} source - Source object (higher priority)
  * @returns {Object} Deeply merged object
  */
 function deepMerge(target, source) {
@@ -19,7 +19,7 @@ function deepMerge(target, source) {
         // Recursively merge nested objects
         result[key] = deepMerge(result[key], source[key]);
       } else {
-        // Overwrite with source value
+        // Source OVERRIDES target (this is correct)
         result[key] = source[key];
       }
     }
@@ -37,9 +37,13 @@ function deepMerge(target, source) {
 function mergeConfigs(configs, priorityOrder = ["env", "yaml", "json"]) {
   let merged = {};
 
-  for (const source of priorityOrder) {
+  // Process in REVERSE: lowest priority first, highest last
+  for (let i = priorityOrder.length - 1; i >= 0; i--) {
+    const source = priorityOrder[i];
     if (configs[source]) {
-      merged = deepMerge(configs[source], merged);
+      // merged = target, configs[source] = source
+      // source (higher priority) overrides target (accumulated result)
+      merged = deepMerge(merged, configs[source]);
     }
   }
 
