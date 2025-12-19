@@ -11,13 +11,13 @@ function deepMerge(target, source) {
     if (source.hasOwnProperty(key)) {
       if (
         source[key] instanceof Object &&
-        key in target &&
-        target[key] instanceof Object &&
+        key in result &&
+        result[key] instanceof Object &&
         !Array.isArray(source[key]) &&
-        !Array.isArray(target[key])
+        !Array.isArray(result[key])
       ) {
         // Recursively merge nested objects
-        result[key] = deepMerge(target[key], source[key]);
+        result[key] = deepMerge(result[key], source[key]);
       } else {
         // Overwrite with source value
         result[key] = source[key];
@@ -39,7 +39,7 @@ function mergeConfigs(configs, priorityOrder = ["env", "yaml", "json"]) {
 
   for (const source of priorityOrder) {
     if (configs[source]) {
-      merged = deepMerge(merged, configs[source]);
+      merged = deepMerge(configs[source], merged);
     }
   }
 
