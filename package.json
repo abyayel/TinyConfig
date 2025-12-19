@@ -1,12 +1,37 @@
 {
-  "name": "tinyconfig",
+  "name": "tiny-config",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Lightweight multi-format configuration loader for Node.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "start": "node examples/basic-usage.js",
+    "dev": "node examples/basic-usage.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "keywords": [
+    "config",
+    "configuration",
+    "env",
+    "json",
+    "yaml",
+    "loader",
+    "tiny-config"
+  ],
+  "author": "Your Team Name",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abyayel/TinyConfig.git"
+  },
+  "bugs": {
+    "url": "https://github.com/abyayel/TinyConfig/issues"
+  },
+  "homepage": "https://github.com/abyayel/TinyConfig#readme"
 }
