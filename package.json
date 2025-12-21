@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "start": "node examples/basic-usage.js",
-    "dev": "node examples/basic-usage.js"
+    "dev": "node examples/basic-usage.js",
+    "demo:env": "node examples/environment-demo.js"
   },
   "keywords": [
     "config",
