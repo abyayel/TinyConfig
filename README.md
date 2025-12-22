@@ -126,21 +126,6 @@ See the examples/ directory for more usage patterns:
 basic-usage.js - Basic configuration loading
 More examples coming soon!
 
-
-Project Structure
-tiny-config/
-├── src/
-│   ├── loaders/          # File format loaders
-│   │   ├── envLoader.js
-│   │   ├── jsonLoader.js
-│   │   └── yamlLoader.js
-│   ├── mergeStrategies.js # Merging logic
-│   └── index.js          # Main export
-├── examples/             # Usage examples
-├── tests/               # Test files
-└── package.json
-
-
 Running Tests
 
 npm test
