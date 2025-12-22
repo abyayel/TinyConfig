@@ -56,3 +56,12 @@ module.exports = {
 
 // Default export
 module.exports.default = tinyConfig;
+
+// Environment support
+const { detectEnvironment, isProduction, isDevelopment } = require('./environments/environmentDetector');
+const { loadEnvironmentConfig } = require('./environments/configLoader');
+
+module.exports.detectEnvironment = detectEnvironment;
+module.exports.isProduction = isProduction;
+module.exports.isDevelopment = isDevelopment;
+module.exports.loadEnvironmentConfig = loadEnvironmentConfig;

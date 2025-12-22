@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  # Simulate a Production App
+  production-app:
+    build: .
+    environment:
+      - NODE_ENV=production
+      - TINY_CONFIG_DEBUG=true
+
+  # Simulate a Dev App
+  dev-app:
+    build: .
+    environment:
+      - NODE_ENV=development
