@@ -151,15 +151,6 @@ const connection = mysql.createConnection({
   database: config.database.name
 });
 
-License
-MIT License
-
-Contributing
-Fork the repository
-Create a feature branch
-Make your changes
-Add tests if applicable
-Submit a pull request
 
 Support
 GitHub Issues: Report bugs or request features
