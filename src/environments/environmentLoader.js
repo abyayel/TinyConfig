@@ -96,13 +96,13 @@ function loadEnvironmentConfig(env = detectEnvironment(), options = {}) {
 /**
  * Determines whether the current runtime environment is production-like.
  *
- * This function returns {@code true} when {@link detectEnvironment}
+ * This function returns `true` when {@link detectEnvironment}
  * resolves to either:
- *  - {@code "production"}
- *  - {@code "prod"}
+ *  - `"production"`
+ *  - `"prod"`
  *
- * @returns {boolean} {@code true} if the environment is one of
- *          "production" or "prod"; otherwise {@code false}.
+ * @returns {boolean} `true` if the environment is one of
+ *          "production" or "prod"; otherwise `false`.
  */
 function isProduction() {
   const env = detectEnvironment();
@@ -112,13 +112,13 @@ function isProduction() {
 /**
  * Determines whether the current runtime environment is development-like.
  *
- * This function returns {@code true} when {@link detectEnvironment}
+ * This function returns `true` when {@link detectEnvironment}
  * resolves to either:
- *  - {@code "development"}
- *  - {@code "dev"}
+ *  - `"development"`
+ *  - `"dev"`
  *
- * @returns {boolean} {@code true} if the environment is one of
- *          "development" or "dev"; otherwise {@code false}.
+ * @returns {boolean} `true` if the environment is one of
+ *          "development" or "dev"; otherwise `false`.
  */
 function isDevelopment() {
   const env = detectEnvironment();
@@ -128,13 +128,13 @@ function isDevelopment() {
 /**
  * Determines whether the current runtime environment is test-like.
  *
- * This function returns {@code true} when {@link detectEnvironment}
+ * This function returns `true` when {@link detectEnvironment}
  * resolves to either:
- *  - {@code "test"}
- *  - {@code "testing"}
+ *  - `"test"`
+ *  - `"testing"`
  *
- * @returns {boolean} {@code true} if the environment is one of
- *          "test" or "testing"; otherwise {@code false}.
+ * @returns {boolean} `true` if the environment is one of
+ *          "test" or "testing"; otherwise `false`.
  */
 function isTesting() {
   const env = detectEnvironment();
