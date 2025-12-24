@@ -1,10 +1,10 @@
-# 🤝 How to Contribute to TinyConfig
+# How to Contribute to TinyConfig
 
 We welcome contributions! Here's how you can help make TinyConfig better.
 
 ---
 
-## 🐛 Reporting Bugs
+## Reporting Bugs
 
 1. Go to the **Issues** tab on GitHub.
 2. Click **"New issue"**.
@@ -17,7 +17,7 @@ We welcome contributions! Here's how you can help make TinyConfig better.
 
 ---
 
-## 💡 Suggesting Features
+## Suggesting Features
 
 1. Create a new **Issue**.
 2. Title: `Feature: [feature name]`.
@@ -28,7 +28,7 @@ We welcome contributions! Here's how you can help make TinyConfig better.
 
 ---
 
-## 💻 Local Setup
+## Local Setup
 
 1. **Install dependencies:**
    ```bash
@@ -45,7 +45,7 @@ We welcome contributions! Here's how you can help make TinyConfig better.
 
 ---
 
-## 🚀 Submitting Code Changes
+## Submitting Code Changes
 
 1. **Fork** the repository.
 2. **Create a branch:**
@@ -68,7 +68,7 @@ We welcome contributions! Here's how you can help make TinyConfig better.
 
 ---
 
-## ✅ What to Validate
+## What to Validate
 
 When changing loaders or merge logic, please confirm:
 
@@ -78,7 +78,7 @@ When changing loaders or merge logic, please confirm:
 
 ---
 
-## 🎨 Code Style
+## Code Style
 
 - Use **2 spaces** for indentation (not tabs).
 - Add **comments** for complex code.

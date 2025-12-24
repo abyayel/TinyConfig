@@ -51,7 +51,7 @@ npm install
 
 ---
 
-## 🚦 Quick Start
+##  Quick Start
 
 ### 1. Create configuration files
 
@@ -108,7 +108,7 @@ console.log(config.database.timeout); // 5000 (from YAML)
 
 ---
 
-## 🛠 API Reference
+##  API Reference
 
 ### `loadConfig(options)` / `tinyConfig(options)`
 Loads and merges configuration from multiple sources.
@@ -152,7 +152,7 @@ Loads files with environment suffixes (e.g., `config.production.json`).
 
 ---
 
-## ⚖️ Priority System
+##  Priority System
 
 Configuration sources are merged with the following priority (highest to lowest):
 1. **.env files** (Environment variables)
@@ -163,7 +163,7 @@ Configuration sources are merged with the following priority (highest to lowest)
 
 ---
 
-## 📖 Examples
+##  Examples
 
 See the `examples/` directory for more usage patterns:
 - `basic-usage.js`: Basic configuration loading.
@@ -171,7 +171,7 @@ See the `examples/` directory for more usage patterns:
 
 ---
 
-## 🧪 Running Tests
+##  Running Tests
 
 ```bash
 npm test
@@ -200,7 +200,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🏅 Acknowledgments
+##  Acknowledgments
 
 - Built with **Node.js**
 - Uses [**dotenv**](https://github.com/motdotla/dotenv) for `.env` file parsing
@@ -208,7 +208,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🗺 Roadmap
+##  Roadmap
 
 - [x] Environment-specific configuration loading
 - [x] Docker and containerization examples
