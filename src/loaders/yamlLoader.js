@@ -15,7 +15,7 @@ function loadYaml(filePaths = ["config.yaml", "config.yml"]) {
     const absolutePath = path.resolve(process.cwd(), filePath);
 
     if (!fs.existsSync(absolutePath)) {
-      console.warn(`YAML config file not found: ${filePath}`);
+      console.debug(`YAML config file not found: ${filePath}`);
       return;
     }
 

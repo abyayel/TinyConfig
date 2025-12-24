@@ -63,7 +63,7 @@ function loadIni(filePaths = "config.ini") {
     const absolutePath = path.resolve(process.cwd(), filePath);
 
     if (!fs.existsSync(absolutePath)) {
-      console.warn("INI config file not found:", filePath);
+      console.debug("INI config file not found:", filePath);
       return;
     }
 

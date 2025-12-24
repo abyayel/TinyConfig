@@ -14,7 +14,7 @@ function loadJson(filePaths = "config.json") {
     const absolutePath = path.resolve(process.cwd(), filePath);
 
     if (!fs.existsSync(absolutePath)) {
-      console.warn(`JSON config file not found: ${filePath}`);
+      console.debug(`JSON config file not found: ${filePath}`);
       return;
     }
 

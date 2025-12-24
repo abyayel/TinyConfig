@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-function loadToml(filePaths = "config.toml") {
+function loadXml(filePaths = "config.xml") {
   const paths = Array.isArray(filePaths) ? filePaths : [filePaths];
   let mergedConfig = {};
 
@@ -9,28 +9,23 @@ function loadToml(filePaths = "config.toml") {
     const absolutePath = path.resolve(process.cwd(), filePath);
 
     if (!fs.existsSync(absolutePath)) {
-      console.warn("TOML config file not found:", filePath);
+      console.warn("XML config file not found:", filePath);
       return;
     }
 
     try {
-      // TOML parsing would require 'toml' package
-      // const toml = require('toml');
-      // const data = fs.readFileSync(absolutePath, 'utf8');
-      // const config = toml.parse(data);
-      // mergedConfig = { ...mergedConfig, ...config };
-
-      console.log(
-        'TOML support: Install "toml" package to enable parsing for',
+      // XML parsing would require 'xml2js' or similar
+      console.debug(
+        'XML support: Install "xml2js" package to enable parsing for',
         filePath
       );
-      // Return empty object for now, but structure is ready
+      // Placeholder for actual implementation
     } catch (error) {
-      console.error("Error with TOML file", filePath, ":", error.message);
+      console.error("Error with XML file", filePath, ":", error.message);
     }
   });
 
   return mergedConfig;
 }
 
-module.exports = { loadToml };
+module.exports = { loadXml };

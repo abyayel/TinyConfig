@@ -20,7 +20,7 @@ function loadToml(filePaths = "config.toml") {
       // const config = toml.parse(data);
       // mergedConfig = { ...mergedConfig, ...config };
 
-      console.log(
+      console.debug(
         'TOML support: Install "toml" package to enable parsing for',
         filePath
       );
