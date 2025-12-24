@@ -111,6 +111,26 @@ const config = loadConfig({
 tinyConfig(options)
 Alias for loadConfig(options).
 
+### Environment-Specific Config
+TinyConfig includes built-in support for environment-specific configuration loading and detection.
+
+#### detectEnvironment(options)
+Detects the environment based on `NODE_ENV`, `ENVIRONMENT`, or `ENV`.
+- **Caching**: The result is cached for the life of the process.
+- **Aliases**: Normalizes `prod` -> `production`, `dev` -> `development`, `testing` -> `test`.
+- **Options**: `{ refresh: true }` to bypass cache.
+
+#### loadEnvironmentConfig(env)
+Loads files with environment suffixes (e.g., `config.production.json`).
+- If `env` is not provided, it auto-detects using `detectEnvironment()`.
+
+#### Helper Functions
+- `isProduction()`: Returns true if environment is production.
+- `isDevelopment()`: Returns true if environment is development.
+- `isTesting()`: Returns true if environment is test.
+- `clearCache()`: Resets the environment cache (useful for testing).
+
+
 Priority System
 Configuration sources are merged with the following priority (highest to lowest):
 

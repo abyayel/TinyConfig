@@ -1,67 +1,34 @@
-const { loadEnv } = require("./loaders/envLoader");
-const { loadJson } = require("./loaders/jsonLoader");
-const { loadYaml } = require("./loaders/yamlLoader");
-const { mergeConfigs } = require("./mergeStrategies");
-
-/**
- * Load and merge configuration from multiple sources
- * @param {Object} options - Configuration options
- * @param {string|string[]} options.envPath - Path(s) to .env file(s)
- * @param {string|string[]} options.jsonPaths - Path(s) to JSON config file(s)
- * @param {string|string[]} options.yamlPaths - Path(s) to YAML config file(s)
- * @param {string[]} options.priority - Merge priority order
- * @returns {Object} Merged configuration object
- */
-function loadConfig(options = {}) {
-  const {
-    envPath = ".env",
-    jsonPaths = "config.json",
-    yamlPaths = ["config.yaml", "config.yml"],
-    priority = ["env", "yaml", "json"], // Priority: env overrides yaml overrides json
-  } = options;
-
-  // Load from all sources
-  const envConfig = loadEnv(envPath);
-  const jsonConfig = loadJson(jsonPaths);
-  const yamlConfig = loadYaml(yamlPaths);
-
-  // Merge with priority
-  return mergeConfigs(
-    {
-      env: envConfig,
-      yaml: yamlConfig,
-      json: jsonConfig,
-    },
-    priority
-  );
-}
-
-/**
- * Simple alias for loadConfig
- */
-function tinyConfig(options) {
-  return loadConfig(options);
-}
+const {
+  loadConfig,
+  tinyConfig,
+  loadEnv,
+  loadJson,
+  loadYaml,
+  mergeConfigs,
+} = require("./core");
 
 // Export both named and default exports
 module.exports = {
   loadConfig,
   tinyConfig,
-  // Also expose individual loaders for advanced use
-  loadEnv,
-  loadJson,
-  loadYaml,
-  mergeConfigs,
 };
 
 // Default export
 module.exports.default = tinyConfig;
 
 // Environment support
-const { detectEnvironment, isProduction, isDevelopment } = require('./environments/environmentDetector');
-const { loadEnvironmentConfig } = require('./environments/configLoader');
+const {
+  detectEnvironment,
+  isProduction,
+  isDevelopment,
+  isTesting,
+  clearCache,
+} = require("./environments/environmentDetector");
+const { loadEnvironmentConfig } = require("./environments/configLoader");
 
 module.exports.detectEnvironment = detectEnvironment;
 module.exports.isProduction = isProduction;
 module.exports.isDevelopment = isDevelopment;
+module.exports.isTesting = isTesting;
+module.exports.clearCache = clearCache;
 module.exports.loadEnvironmentConfig = loadEnvironmentConfig;
