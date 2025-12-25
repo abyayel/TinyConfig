@@ -8,10 +8,13 @@
   },
   "scripts": {
     "test": "jest",
-    "start": "node examples/basic-usage.js",
-    "dev": "node examples/basic-usage.js",
-    "demo:env": "node examples/environment-demo.js",
-    "cli": "node bin/tiny-config.js"
+    "test:all": "node test-everything.js",
+    "example:basic": "node examples/basic-usage.js",
+    "example:cli": "node examples/cli-tool-advanced.js",
+    "example:env": "node examples/environment-demo.js",
+    "example:express": "node examples/express-server.js",
+    "cli": "node bin/tiny-config.js",
+    "start": "node examples/basic-usage.js"
   },
   "keywords": [
     "config",

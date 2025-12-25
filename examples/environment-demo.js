@@ -1,36 +1,29 @@
-const {
-    detectEnvironment,
-    isProduction,
-    isDevelopment,
-    loadEnvironmentConfig
-} = require('../src/index');
+const { detectEnvironment, loadEnvironmentConfig } = require("../src/index");
 
-console.log('=== TinyConfig Environment Demo ===\n');
+console.log("=== TinyConfig Environment Demo ===");
 
-// 1. Detect environment
-console.log('1. Environment Detection:');
-console.log(`   Detected: ${detectEnvironment()}`);
-console.log(`   Is Production: ${isProduction()}`);
-console.log(`   Is Development: ${isDevelopment()}`);
+console.log("\n1. Environment Detection:");
+console.log("   Detected environment:", detectEnvironment());
+console.log("   NODE_ENV:", process.env.NODE_ENV || "not set");
 
-// 2. Load environment-specific config
-console.log('\n2. Loading Environment Config:');
+console.log("\n2. Loading Environment Configuration:");
 try {
-    const config = loadEnvironmentConfig();
-    console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`   Config keys loaded: ${Object.keys(config).length}`);
+  const config = loadEnvironmentConfig();
+  console.log("   Successfully loaded environment config");
+  console.log("   Number of config keys:", Object.keys(config).length);
 
-    // Show some config
-    if (config.server) {
-        console.log(`   Server port: ${config.server.port || 'Not set'}`);
-    }
+  // Show sample values
+  if (config.server?.port) {
+    console.log("   Server port:", config.server.port);
+  }
 } catch (error) {
-    console.error(`   Error: ${error.message}`);
+  console.log("   Error:", error.message);
 }
 
-// 3. Show how to use different environments
-console.log('\n3. Environment Switching Example:');
-console.log('   To run in production:');
-console.log('   $ NODE_ENV=production node examples/environment-demo.js');
+console.log("\n3. Usage Example:");
+console.log("   // In your application:");
+console.log("   const { loadEnvironmentConfig } = require('tiny-config');");
+console.log("   const config = loadEnvironmentConfig();");
+console.log("   // config contains environment-specific settings");
 
-console.log('\n=== Demo Complete ===');
+console.log("\n=== Demo Complete ===");
