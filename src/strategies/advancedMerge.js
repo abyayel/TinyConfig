@@ -1,36 +1,45 @@
-function mergeWithStrategy(target, source, strategy = 'override') {
+function mergeWithStrategy(target, source, strategy = "override") {
   const result = { ...target };
-  
+
   for (const key in source) {
     if (source.hasOwnProperty(key)) {
       const sourceValue = source[key];
       const targetValue = result[key];
-      
-      switch(strategy) {
-        case 'override':
+
+      switch (strategy) {
+        case "override":
           result[key] = sourceValue;
           break;
-          
-        case 'merge-deep':
-          if (sourceValue && typeof sourceValue === 'object' && 
-              targetValue && typeof targetValue === 'object' &&
-              !Array.isArray(sourceValue) && !Array.isArray(targetValue)) {
+
+        case "merge-deep":
+          if (
+            sourceValue &&
+            typeof sourceValue === "object" &&
+            targetValue &&
+            typeof targetValue === "object" &&
+            !Array.isArray(sourceValue) &&
+            !Array.isArray(targetValue)
+          ) {
             result[key] = mergeWithStrategy(targetValue, sourceValue, strategy);
           } else {
             result[key] = sourceValue;
           }
           break;
-          
-        case 'shallow-merge':
-          if (sourceValue && typeof sourceValue === 'object' && 
-              targetValue && typeof targetValue === 'object') {
+
+        case "shallow-merge":
+          if (
+            sourceValue &&
+            typeof sourceValue === "object" &&
+            targetValue &&
+            typeof targetValue === "object"
+          ) {
             result[key] = { ...targetValue, ...sourceValue };
           } else {
             result[key] = sourceValue;
           }
           break;
-          
-        case 'concat-arrays':
+
+        case "concat-arrays":
           if (Array.isArray(sourceValue) && Array.isArray(targetValue)) {
             result[key] = targetValue.concat(sourceValue);
           } else if (Array.isArray(sourceValue)) {
@@ -41,8 +50,8 @@ function mergeWithStrategy(target, source, strategy = 'override') {
             result[key] = sourceValue;
           }
           break;
-          
-        case 'prepend-arrays':
+
+        case "prepend-arrays":
           if (Array.isArray(sourceValue) && Array.isArray(targetValue)) {
             result[key] = sourceValue.concat(targetValue);
           } else if (Array.isArray(sourceValue)) {
@@ -53,45 +62,66 @@ function mergeWithStrategy(target, source, strategy = 'override') {
             result[key] = sourceValue;
           }
           break;
-          
+
         default:
           result[key] = sourceValue;
       }
     }
   }
-  
+
   return result;
 }
 
 function mergeWithPriorityMap(configs, priorityMap = {}) {
   let merged = {};
-  const defaultPriority = ['env', 'yaml', 'json', 'toml', 'xml', 'ini'];
-  
+  const defaultPriority = ["env", "yaml", "json", "toml", "xml", "ini"];
+
   for (const source of defaultPriority) {
     if (configs[source]) {
-      merged = mergeWithStrategy(merged, configs[source], 'override');
+      merged = mergeWithStrategy(merged, configs[source], "override");
     }
   }
-  
+
   return merged;
 }
 
 function transformValues(config, transformers = {}) {
   const result = { ...config };
-  
+
   for (const [key, transformer] of Object.entries(transformers)) {
     if (key in result) {
-      if (typeof transformer === 'function') {
+      if (typeof transformer === "function") {
         result[key] = transformer(result[key]);
       }
     }
   }
-  
+
   return result;
 }
 
-module.exports = { 
-  mergeWithStrategy, 
-  mergeWithPriorityMap, 
-  transformValues 
+// ADDED FUNCTIONS (from old mergeStrategies.js)
+function mergeConfigs(configs, priorityOrder = ["env", "yaml", "json"]) {
+  let merged = {};
+
+  // Process in REVERSE: lowest priority first, highest last
+  for (let i = priorityOrder.length - 1; i >= 0; i--) {
+    const source = priorityOrder[i];
+    if (configs[source]) {
+      merged = mergeWithStrategy(merged, configs[source], "override");
+    }
+  }
+
+  return merged;
+}
+
+function deepMerge(target, source) {
+  return mergeWithStrategy(target, source, "merge-deep");
+}
+
+module.exports = {
+  mergeWithStrategy,
+  mergeWithPriorityMap,
+  transformValues,
+  mergeConfigs,
+  deepMerge,
 };

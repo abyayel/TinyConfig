@@ -1,19 +1,24 @@
 const { loadEnv } = require("./loaders/envLoader");
 const { loadJson } = require("./loaders/jsonLoader");
 const { loadYaml } = require("./loaders/yamlLoader");
-const { loadToml } = require("./loaders/tomlLoader"); // NEW
-const { loadXml } = require("./loaders/xmlLoader"); // NEW
-const { loadIni } = require("./loaders/iniLoader"); // NEW
-const { mergeConfigs } = require("./mergeStrategies");
+const { loadToml } = require("./loaders/tomlLoader");
+const { loadXml } = require("./loaders/xmlLoader");
+const { loadIni } = require("./loaders/iniLoader");
+
+// ALL merge functions from ONE file
 const {
+  mergeConfigs,
   mergeWithStrategy,
   mergeWithPriorityMap,
   transformValues,
-} = require("./strategies/advancedMerge"); // NEW
+  deepMerge,
+} = require("./strategies/advancedMerge");
+
 const {
   validateWithSchema,
   createSchema,
-} = require("./validation/schemaValidator"); // NEW
+} = require("./validation/schemaValidator");
+
 const {
   detectEnvironment,
   loadEnvironmentConfig,
@@ -21,34 +26,34 @@ const {
   isProduction,
   isDevelopment,
   isTesting,
-} = require("./environments/environmentLoader"); // NEW
+} = require("./environments/environmentLoader");
 
 function loadConfig(options = {}) {
   const {
     envPath = ".env",
     jsonPaths = "config.json",
     yamlPaths = ["config.yaml", "config.yml"],
-    tomlPaths = "config.toml", // NEW
-    xmlPaths = "config.xml", // NEW
-    iniPaths = "config.ini", // NEW
-    priority = ["env", "yaml", "json", "toml", "xml", "ini"], // UPDATED
+    tomlPaths = "config.toml",
+    xmlPaths = "config.xml",
+    iniPaths = "config.ini",
+    priority = ["env", "yaml", "json", "toml", "xml", "ini"],
   } = options;
 
   const envConfig = loadEnv(envPath);
   const jsonConfig = loadJson(jsonPaths);
   const yamlConfig = loadYaml(yamlPaths);
-  const tomlConfig = loadToml(tomlPaths); // NEW
-  const xmlConfig = loadXml(xmlPaths); // NEW
-  const iniConfig = loadIni(iniPaths); // NEW
+  const tomlConfig = loadToml(tomlPaths);
+  const xmlConfig = loadXml(xmlPaths);
+  const iniConfig = loadIni(iniPaths);
 
   return mergeConfigs(
     {
       env: envConfig,
       yaml: yamlConfig,
       json: jsonConfig,
-      toml: tomlConfig, // NEW
-      xml: xmlConfig, // NEW
-      ini: iniConfig, // NEW
+      toml: tomlConfig,
+      xml: xmlConfig,
+      ini: iniConfig,
     },
     priority
   );
@@ -63,12 +68,18 @@ module.exports = {
   loadConfig,
   tinyConfig,
 
-  // Advanced features (NEW)
+  // Advanced merging features
   mergeWithStrategy,
   mergeWithPriorityMap,
   transformValues,
+  mergeConfigs,
+  deepMerge,
+
+  // Validation
   validateWithSchema,
   createSchema,
+
+  // Environments
   detectEnvironment,
   loadEnvironmentConfig,
   isProduction,
@@ -76,14 +87,11 @@ module.exports = {
   isTesting,
   getEnvironmentFiles,
 
-  // File loaders (NEW)
+  // File loaders
   loadToml,
   loadXml,
   loadIni,
-
-  // Original loaders
   loadEnv,
   loadJson,
   loadYaml,
-  mergeConfigs,
 };
