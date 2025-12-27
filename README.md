@@ -1,5 +1,11 @@
 # TinyConfig
 
+## GitHub Repository
+
+https://github.com/abyayel/TinyConfig
+
+## What is TinyConfig
+
 A professional configuration management suite for Node.js that merges settings from multiple file formats with smart priority rules, CLI support, and validation.
 
 ## Why TinyConfig?
