@@ -15,9 +15,12 @@ function parseIniContent(content) {
     }
 
     // Handle sections [section]
-    if (line.startsWith("[") && line.endsWith("]")) {
-      currentSection = line.substring(1, line.length - 1);
-      config[currentSection] = {};
+    const sectionMatch = line.match(/^\[([^\]]+)\]$/);
+    if (sectionMatch) {
+      currentSection = sectionMatch[1];
+      if (!config[currentSection]) {
+        config[currentSection] = {};
+      }
       return;
     }
 
@@ -27,7 +30,7 @@ function parseIniContent(content) {
       const key = line.substring(0, equalsIndex).trim();
       let value = line.substring(equalsIndex + 1).trim();
 
-      // Remove quotes
+      // Remove surrounding quotes while preserving inner quotes
       if (
         (value.startsWith('"') && value.endsWith('"')) ||
         (value.startsWith("'") && value.endsWith("'"))
@@ -35,13 +38,23 @@ function parseIniContent(content) {
         value = value.substring(1, value.length - 1);
       }
 
-      // Convert boolean strings
-      if (value.toLowerCase() === "true") value = true;
-      if (value.toLowerCase() === "false") value = false;
-
-      // Convert number strings
-      if (!isNaN(value) && value.trim() !== "") {
-        value = Number(value);
+      // Try to parse as number
+      if (!isNaN(value) && value.trim() !== "" && !value.includes(".")) {
+        value = parseInt(value, 10);
+      } else if (!isNaN(value) && value.includes(".")) {
+        value = parseFloat(value);
+      }
+      // Try to parse as boolean
+      else if (value.toLowerCase() === "true") {
+        value = true;
+      } else if (value.toLowerCase() === "false") {
+        value = false;
+      }
+      // Try to parse as null/undefined
+      else if (value.toLowerCase() === "null") {
+        value = null;
+      } else if (value.toLowerCase() === "undefined") {
+        value = undefined;
       }
 
       if (currentSection) {
@@ -63,16 +76,29 @@ function loadIni(filePaths = "config.ini") {
     const absolutePath = path.resolve(process.cwd(), filePath);
 
     if (!fs.existsSync(absolutePath)) {
-      console.debug("INI config file not found:", filePath);
+      console.warn(`INI config file not found: ${filePath}`);
       return;
     }
 
     try {
       const data = fs.readFileSync(absolutePath, "utf8");
       const config = parseIniContent(data);
-      mergedConfig = { ...mergedConfig, ...config };
+
+      // Merge sections
+      Object.keys(config).forEach((section) => {
+        if (typeof config[section] === "object") {
+          if (!mergedConfig[section]) {
+            mergedConfig[section] = {};
+          }
+          Object.keys(config[section]).forEach((key) => {
+            mergedConfig[section][key] = config[section][key];
+          });
+        } else {
+          mergedConfig[section] = config[section];
+        }
+      });
     } catch (error) {
-      console.error("Error with INI file", filePath, ":", error.message);
+      console.error(`Error loading INI file ${filePath}:`, error.message);
     }
   });
 
