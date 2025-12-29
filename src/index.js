@@ -37,8 +37,10 @@ function loadConfig(options = {}) {
     xmlPaths = "config.xml",
     iniPaths = "config.ini",
     priority = ["env", "yaml", "json", "toml", "xml", "ini"],
+    mergeStrategy = "merge-deep",
   } = options;
 
+  // Load all configs
   const envConfig = loadEnv(envPath);
   const jsonConfig = loadJson(jsonPaths);
   const yamlConfig = loadYaml(yamlPaths);
@@ -46,27 +48,58 @@ function loadConfig(options = {}) {
   const xmlConfig = loadXml(xmlPaths);
   const iniConfig = loadIni(iniPaths);
 
-  return mergeConfigs(
-    {
-      env: envConfig,
-      yaml: yamlConfig,
-      json: jsonConfig,
-      toml: tomlConfig,
-      xml: xmlConfig,
-      ini: iniConfig,
-    },
-    priority
-  );
+  // Create configs object in priority order (lowest to highest)
+  const configsInOrder = [];
+  priority.forEach((source) => {
+    switch (source) {
+      case "env":
+        configsInOrder.push(envConfig);
+        break;
+      case "yaml":
+        configsInOrder.push(yamlConfig);
+        break;
+      case "json":
+        configsInOrder.push(jsonConfig);
+        break;
+      case "toml":
+        configsInOrder.push(tomlConfig);
+        break;
+      case "xml":
+        configsInOrder.push(xmlConfig);
+        break;
+      case "ini":
+        configsInOrder.push(iniConfig);
+        break;
+    }
+  });
+
+  // Start with empty object and merge in priority order
+  let mergedConfig = {};
+  configsInOrder.forEach((config) => {
+    mergedConfig = mergeWithStrategy(mergedConfig, config, mergeStrategy);
+  });
+
+  return mergedConfig;
 }
 
 function tinyConfig(options) {
   return loadConfig(options);
 }
 
+// Enhanced environment loading that works with fixed circular dependency
+function loadEnvironmentConfigWrapper(env = detectEnvironment(), options = {}) {
+  const envInfo = loadEnvironmentConfig(env);
+  return loadConfig({
+    ...envInfo.options,
+    ...options,
+  });
+}
+
 module.exports = {
   // Core functions
   loadConfig,
   tinyConfig,
+  loadEnvironmentConfig: loadEnvironmentConfigWrapper,
 
   // Advanced merging features
   mergeWithStrategy,
@@ -81,7 +114,6 @@ module.exports = {
 
   // Environments
   detectEnvironment,
-  loadEnvironmentConfig,
   isProduction,
   isDevelopment,
   isTesting,
