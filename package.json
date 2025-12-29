@@ -1,7 +1,7 @@
 {
   "name": "tiny-config",
   "version": "2.0.0",
-  "description": "Professional configuration management suite for Node.js - Load and merge settings from .env, JSON, YAML, TOML, XML, and INI files with priority-based merging, validation, and environment support",
+  "description": "Professional configuration management suite for Node.js that merges settings from multiple file formats with smart priority rules, CLI support, and validation.",
   "main": "src/index.js",
   "types": "types/index.d.ts",
   "bin": {
@@ -11,15 +11,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:all": "node test-everything.js",
-    "example:basic": "node examples/basic-usage.js",
-    "example:cli": "node examples/cli-tool-advanced.js",
-    "example:env": "node examples/environment-demo.js",
-    "example:express": "node examples/express-server.js",
-    "cli": "node bin/tiny-config.js",
     "start": "node examples/basic-usage.js",
-    "lint": "eslint src/ tests/ examples/ bin/",
-    "clean": "rm -rf node_modules && rm -f package-lock.json"
+    "cli": "node bin/tiny-config.js show",
+    "lint": "eslint src/ --fix"
   },
   "keywords": [
     "config",
@@ -34,51 +28,21 @@
     "cli",
     "validation",
     "environment",
-    "settings",
-    "dotenv",
-    "config-management",
-    "tiny-config"
+    "settings"
   ],
-  "author": "TinyConfig Team: [Abyayel Abebaye],[Abreham Adugna],[Aelaf Tsegaye], [Allen Wondwosen], [Abele Maru], [Firaol Tesfaye]",
+  "author": "TinyConfig Team",
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.0.0",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "toml": "^3.0.0",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
-    "jest": "^29.0.0"
+    "jest": "^29.0.0",
+    "eslint": "^8.0.0"
   },
   "engines": {
     "node": ">=14.0.0"
-  },
-  "files": [
-    "src/",
-    "bin/",
-    "types/",
-    "LICENSE",
-    "README.md"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/abyayel/TinyConfig.git"
-  },
-  "bugs": {
-    "url": "https://github.com/abyayel/TinyConfig/issues"
-  },
-  "homepage": "https://github.com/abyayel/TinyConfig#readme",
-  "jest": {
-    "testMatch": [
-      "**/tests/**/*.test.js"
-    ],
-    "collectCoverageFrom": [
-      "src/**/*.js",
-      "!src/**/*.test.js"
-    ],
-    "coverageDirectory": "coverage",
-    "coverageReporters": [
-      "text",
-      "lcov"
-    ],
-    "testEnvironment": "node"
   }
 }
