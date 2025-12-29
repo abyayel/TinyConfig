@@ -1,7 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-// REMOVE THIS: const { loadConfig } = require('../index');
-// We'll require loadConfig inside the function to avoid circular dependency
 
 function detectEnvironment() {
   // Check NODE_ENV first (standard)
@@ -18,12 +16,7 @@ function detectEnvironment() {
     return process.env.ENV;
   }
 
-  // Detect by hostname or user (for development)
-  // FIX: Added || operator
-  if (process.env.USER === "root" || process.env.USERNAME === "Administrator") {
-    return "production";
-  }
-
+  // Remove unreliable username detection - too problematic
   // Default to development
   return "development";
 }
@@ -40,26 +33,27 @@ function getEnvironmentFiles(env) {
     ],
     tomlFiles: [`config.${env}.toml`, "config.toml"],
     iniFiles: [`config.${env}.ini`, "config.ini"],
+    xmlFiles: [`config.${env}.xml`, "config.xml"],
   };
 }
 
-function loadEnvironmentConfig(env = detectEnvironment(), options = {}) {
-  // FIX: Require loadConfig here, not at top (avoids circular dependency)
-  const { loadConfig } = require("../index");
-
+function loadEnvironmentConfig(env = detectEnvironment(), loaders = {}) {
   const envFiles = getEnvironmentFiles(env);
 
-  const mergedOptions = {
-    envPath: envFiles.envFiles,
-    jsonPaths: envFiles.jsonFiles,
-    yamlPaths: envFiles.yamlFiles,
-    tomlPaths: envFiles.tomlFiles,
-    iniPaths: envFiles.iniFiles,
-    priority: ["env", "yaml", "json", "toml", "ini"],
-    ...options,
+  // Return the file paths and options - let the caller load them
+  return {
+    env,
+    filePaths: envFiles,
+    options: {
+      envPath: envFiles.envFiles,
+      jsonPaths: envFiles.jsonFiles,
+      yamlPaths: envFiles.yamlFiles,
+      tomlPaths: envFiles.tomlFiles,
+      xmlPaths: envFiles.xmlFiles,
+      iniPaths: envFiles.iniFiles,
+      priority: ["env", "yaml", "json", "toml", "xml", "ini"],
+    },
   };
-
-  return loadConfig(mergedOptions);
 }
 
 function isProduction() {
