@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+  <API_KEY>xml-api-key</API_KEY>
+  <DATABASE_URL>xml-database-url</DATABASE_URL>
+  <DEBUG>false</DEBUG>
+  <LOG_LEVEL>warn</LOG_LEVEL>
+</config>

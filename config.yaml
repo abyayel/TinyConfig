@@ -1,11 +1,5 @@
-server:
-  port: 8080
-  name: "TinyConfig Server"
-
-database:
-  connectionPool: 10
-  timeout: 5000
-
-features:
-  cache: false
-  analytics: true
+# config.yaml
+API_KEY: yaml-api-key
+DATABASE_URL: yaml-database-url
+DEBUG: true
+LOG_LEVEL: debug

@@ -1,15 +1,11 @@
 #!/usr/bin/env node
-const {
-  loadConfig,
-  validateWithSchema,
-  detectEnvironment,
-} = require("../src/index");
+const { loadConfig } = require("../src/index");
 const fs = require("fs");
 const path = require("path");
 
 function showHelp() {
   console.log(`
-TinyConfig CLI v2.0
+TinyConfig CLI
 
 Commands:
   show                    Display merged configuration
@@ -29,10 +25,65 @@ Examples:
 `);
 }
 
+function detectEnvironment() {
+  return process.env.NODE_ENV || "development";
+}
+
+function filterSystemEnvVars(config) {
+  const filtered = {};
+
+  Object.keys(config).forEach((key) => {
+    const isSystemVar =
+      key === "OS" ||
+      key === "Path" ||
+      key === "ProgramData" ||
+      key === "ProgramFiles" ||
+      key === "ProgramFiles(x86)" ||
+      key === "ProgramW6432" ||
+      key === "SystemDrive" ||
+      key === "TMP" ||
+      key === "USERNAME" ||
+      key.startsWith("npm_") ||
+      key.includes("PROCESSOR") ||
+      key.includes("SESSION") ||
+      key.includes("USERDOMAIN") ||
+      key.includes("USERPROFILE") ||
+      key.includes("COMPUTERNAME") ||
+      key.includes("WINDIR");
+
+    const isConfigData = typeof config[key] === "object";
+
+    const isEnvVar =
+      key === "NODE_ENV" ||
+      key === "PORT" ||
+      key === "LOG_LEVEL" ||
+      key === "API_KEY" ||
+      key === "DATABASE_URL" ||
+      key === "REDIS_URL" ||
+      key === "JWT_SECRET" ||
+      key.includes("_URL") ||
+      key.includes("_KEY") ||
+      key.includes("_SECRET");
+
+    if (isConfigData || isEnvVar || !isSystemVar) {
+      filtered[key] = config[key];
+    }
+  });
+
+  return filtered;
+}
+
 function showConfig() {
   try {
-    const config = loadConfig();
-    console.log(JSON.stringify(config, null, 2));
+    const config = loadConfig({
+      envPath: "config/.env",
+      jsonPaths: "config/config.json",
+      yamlPaths: "config/config.yaml",
+      iniPaths: "config/database.ini",
+    });
+
+    const filteredConfig = filterSystemEnvVars(config);
+    console.log(JSON.stringify(filteredConfig, null, 2));
     return 0;
   } catch (error) {
     console.error("Error loading config:", error.message);
@@ -42,68 +93,83 @@ function showConfig() {
 
 function validateConfig() {
   try {
-    const config = loadConfig();
-    console.log("Configuration loaded successfully");
-    console.log(`Found ${Object.keys(config).length} configuration keys`);
+    const config = loadConfig({
+      envPath: "config/.env",
+      jsonPaths: "config/config.json",
+      yamlPaths: "config/config.yaml",
+      iniPaths: "config/database.ini",
+    });
 
-    // Basic validation check
-    if (Object.keys(config).length === 0) {
-      console.warn("Warning: Configuration appears to be empty");
+    const filteredConfig = filterSystemEnvVars(config);
+    console.log("✓ Configuration loaded successfully");
+    console.log(
+      `✓ Found ${Object.keys(filteredConfig).length} configuration keys`
+    );
+
+    const configKeys = Object.keys(filteredConfig);
+    if (configKeys.length === 0) {
+      console.warn("⚠ Warning: No configuration loaded from files");
+    } else {
+      const fileBasedKeys = configKeys.filter(
+        (k) => typeof filteredConfig[k] === "object"
+      );
+      console.log(
+        `✓ Loaded ${fileBasedKeys.length} configuration sections from files`
+      );
     }
 
     return 0;
   } catch (error) {
-    console.error("Validation failed:", error.message);
+    console.error("✗ Validation failed:", error.message);
     return 1;
   }
 }
 
 function generateEnvTemplate() {
   const template = `# Environment Variables Template
-# Copy this file to .env and fill in your actual values
+# Copy this file to config/.env and fill in your actual values
 
-# Required settings
-API_KEY=your_api_key_here
-DATABASE_URL=mongodb://localhost:27017/yourdb
-
-# Optional settings
-DEBUG=true
-PORT=3000
 NODE_ENV=development
+PORT=3000
 LOG_LEVEL=info
-
-# Add your environment variables below
-# Each line should be KEY=VALUE
+API_KEY=your_api_key_here
+DATABASE_URL=postgresql://username:password@localhost:5432/database
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=your_jwt_secret_here
 `;
 
   try {
-    fs.writeFileSync(".env.template", template);
-    console.log("Created .env.template file");
+    fs.writeFileSync("config/.env.example", template);
+    console.log("✓ Created config/.env.example file");
     return 0;
   } catch (error) {
-    console.error("Failed to create .env.template:", error.message);
+    console.error("✗ Failed to create .env.example:", error.message);
     return 1;
   }
 }
 
 function checkRequiredFields() {
   try {
-    const config = loadConfig();
-    const required = process.env.REQUIRED_FIELDS
-      ? process.env.REQUIRED_FIELDS.split(",")
-      : ["API_KEY", "DATABASE_URL"];
+    const config = loadConfig({
+      envPath: "config/.env",
+      jsonPaths: "config/config.json",
+      yamlPaths: "config/config.yaml",
+      iniPaths: "config/database.ini",
+    });
 
+    const required = ["API_KEY", "DATABASE_URL"];
     const missing = required.filter((field) => !config[field]);
 
     if (missing.length > 0) {
-      console.error("Missing required fields:", missing.join(", "));
+      console.error("✗ Missing required fields:", missing.join(", "));
+      console.log("   Run 'tiny-config generate-env' to create a template");
       return 1;
     }
 
-    console.log("All required fields present");
+    console.log("✓ All required fields present");
     return 0;
   } catch (error) {
-    console.error("Error checking required fields:", error.message);
+    console.error("✗ Error checking required fields:", error.message);
     return 1;
   }
 }
@@ -116,20 +182,19 @@ function showEnvironmentConfig(env) {
     }
 
     const config = loadConfig({
-      envPath: [`.env.${env}`, ".env"],
-      jsonPaths: [`config.${env}.json`, "config.json"],
-      yamlPaths: [`config.${env}.yaml`, "config.yaml"],
-      tomlPaths: [`config.${env}.toml`, "config.toml"],
-      xmlPaths: [`config.${env}.xml`, "config.xml"],
-      iniPaths: [`config.${env}.ini`, "config.ini"],
+      envPath: [`config/.env.${env}`, "config/.env"],
+      jsonPaths: [`config/config.${env}.json`, "config/config.json"],
+      yamlPaths: [`config/config.${env}.yaml`, "config/config.yaml"],
+      iniPaths: [`config/database.${env}.ini`, "config/database.ini"],
     });
 
+    const filteredConfig = filterSystemEnvVars(config);
     console.log(`\nEnvironment: ${env}`);
-    console.log(JSON.stringify(config, null, 2));
+    console.log(JSON.stringify(filteredConfig, null, 2));
     return 0;
   } catch (error) {
     console.error(
-      `Error loading config for environment '${env}':`,
+      `✗ Error loading config for environment '${env}':`,
       error.message
     );
     return 1;
@@ -141,35 +206,31 @@ function listConfigFiles() {
   console.log(`Current environment: ${env}\n`);
 
   const files = [
-    `.env.${env}`,
-    ".env",
-    `config.${env}.json`,
-    "config.json",
-    `config.${env}.yaml`,
-    "config.yaml",
-    `config.${env}.yml`,
-    "config.yml",
-    `config.${env}.toml`,
-    "config.toml",
-    `config.${env}.xml`,
-    "config.xml",
-    `config.${env}.ini`,
-    "config.ini",
+    `config/.env.${env}`,
+    "config/.env",
+    `config/config.${env}.json`,
+    "config/config.json",
+    `config/config.${env}.yaml`,
+    "config/config.yaml",
+    `config/config.${env}.yml`,
+    "config/config.yml",
+    `config/database.${env}.ini`,
+    "config/database.ini",
   ];
 
   console.log("Configuration files TinyConfig looks for:");
+  let foundCount = 0;
   files.forEach((file) => {
     const absolutePath = path.resolve(process.cwd(), file);
     const exists = fs.existsSync(absolutePath);
-    console.log(
-      `  ${exists ? "YES" : "NO"} ${file} ${exists ? "(found)" : "(not found)"}`
-    );
+    if (exists) foundCount++;
+    console.log(`  ${exists ? "✓" : "✗"} ${file}`);
   });
 
+  console.log(`\nFound ${foundCount} of ${files.length} config files`);
   return 0;
 }
 
-// Main execution
 const command = process.argv[2];
 const arg = process.argv[3];
 

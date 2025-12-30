@@ -1,27 +1,34 @@
 const fs = require("fs");
 const path = require("path");
-require("dotenv").config();
+const dotenv = require("dotenv");
 
-/**
- * Load environment variables from a .env file
- * @param {string|string[]} filePaths - Path(s) to .env file(s)
- * @returns {Object} Environment variables as key-value pairs
- */
 function loadEnv(filePaths = ".env") {
   const paths = Array.isArray(filePaths) ? filePaths : [filePaths];
   let allEnvVars = {};
 
+  // FIX: Don't call dotenv.config() at the top level
+  // Only load the specific files
   paths.forEach((filePath) => {
     const absolutePath = path.resolve(process.cwd(), filePath);
-
     if (fs.existsSync(absolutePath)) {
-      // Load this specific .env file
-      require("dotenv").config({ path: absolutePath });
+      try {
+        const envConfig = dotenv.config({ path: absolutePath });
+        if (envConfig.error) {
+          console.warn(
+            `Warning: Error loading ${filePath}:`,
+            envConfig.error.message
+          );
+        }
+      } catch (error) {
+        console.warn(
+          `Warning: Failed to load env file ${filePath}:`,
+          error.message
+        );
+      }
     }
   });
 
-  // Copy all environment variables to our object
-  // Filter to avoid system vars if you want (optional)
+  // Copy all environment variables
   Object.keys(process.env).forEach((key) => {
     allEnvVars[key] = process.env[key];
   });

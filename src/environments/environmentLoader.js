@@ -1,24 +1,13 @@
-const fs = require("fs");
 const path = require("path");
 
 function detectEnvironment() {
-  // Check NODE_ENV first (standard)
-  if (process.env.NODE_ENV) {
-    return process.env.NODE_ENV;
-  }
-
-  // Check common environment variables
-  if (process.env.ENVIRONMENT) {
-    return process.env.ENVIRONMENT;
-  }
-
-  if (process.env.ENV) {
-    return process.env.ENV;
-  }
-
-  // Remove unreliable username detection - too problematic
-  // Default to development
-  return "development";
+  // Check the most common environment variables in order
+  return (
+    process.env.NODE_ENV ||
+    process.env.ENVIRONMENT ||
+    process.env.ENV ||
+    "development"
+  );
 }
 
 function getEnvironmentFiles(env) {
@@ -37,10 +26,9 @@ function getEnvironmentFiles(env) {
   };
 }
 
-function loadEnvironmentConfig(env = detectEnvironment(), loaders = {}) {
+function loadEnvironmentConfig(env = detectEnvironment()) {
   const envFiles = getEnvironmentFiles(env);
 
-  // Return the file paths and options - let the caller load them
   return {
     env,
     filePaths: envFiles,
@@ -56,26 +44,13 @@ function loadEnvironmentConfig(env = detectEnvironment(), loaders = {}) {
   };
 }
 
-function isProduction() {
-  const env = detectEnvironment();
-  return env === "production" || env === "prod";
-}
-
-function isDevelopment() {
-  const env = detectEnvironment();
-  return env === "development" || env === "dev";
-}
-
-function isTesting() {
-  const env = detectEnvironment();
-  return env === "test" || env === "testing";
-}
+const isEnvironment = (env) => detectEnvironment() === env;
 
 module.exports = {
   detectEnvironment,
   loadEnvironmentConfig,
   getEnvironmentFiles,
-  isProduction,
-  isDevelopment,
-  isTesting,
+  isProduction: () => isEnvironment("production") || isEnvironment("prod"),
+  isDevelopment: () => isEnvironment("development") || isEnvironment("dev"),
+  isTesting: () => isEnvironment("test") || isEnvironment("testing"),
 };

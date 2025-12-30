@@ -1,10 +1,6 @@
 {
-  "server": {
-    "port": 3000,
-    "host": "localhost"
-  },
-  "features": {
-    "cache": true,
-    "logging": false
-  }
+  "API_KEY": "json-api-key",
+  "DATABASE_URL": "json-database-url",
+  "DEBUG": true,
+  "LOG_LEVEL": "info"
 }

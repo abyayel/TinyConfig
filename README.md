@@ -1,364 +1,362 @@
 # TinyConfig
 
-## GitHub Repository
-
-https://github.com/abyayel/TinyConfig
-
 ## What is TinyConfig
 
-A professional configuration management suite for Node.js that merges settings from multiple file formats with smart priority rules, CLI support, and validation.
+TinyConfig is a lightweight configuration management library for Node.js applications that unifies settings from multiple file formats into a single configuration object. It supports environment-specific configurations, priority-based merging, and provides a CLI for configuration management.
 
-## Why TinyConfig?
+## Key Features
 
-Managing configuration across different file formats is complex and error-prone. TinyConfig simplifies this by providing a unified interface to load, validate, and manage application settings.
-
-### Before TinyConfig
-
-```javascript
-// Manual loading and merging
-require("dotenv").config();
-const jsonConfig = require("./config.json");
-const yaml = require("js-yaml");
-const fs = require("fs");
-const yamlConfig = yaml.load(fs.readFileSync("config.yaml"));
-// Manual merging, error handling, priority decisions...
-```
-
-### After TinyConfig
-
-```javascript
-const { loadConfig } = require("tiny-config");
-const config = loadConfig(); // One line!
-```
-
-## Features
-
-- **Multi-format Support**: Load from .env, JSON, YAML, TOML, XML, and INI files
-- **Command Line Interface**: Full-featured CLI for configuration management
-- **Priority Merging**: Customizable merge order (default: .env > YAML > JSON > TOML > XML > INI)
-- **Schema Validation**: Type checking and validation with custom rules
-- **Environment Detection**: Automatic dev/test/prod environment detection
-- **Advanced Merging**: Array concatenation, deep merging, custom strategies
-- **TypeScript Ready**: Complete TypeScript definitions included
-- **Error Handling**: Graceful handling of missing or invalid files
+- **Multi-format Configuration Loading**: Load configuration from .env, JSON, YAML, and INI files
+- **Environment Detection**: Automatic environment detection (development, test, production)
+- **Priority-Based Merging**: Configurable merge order with .env files taking highest priority
+- **Command Line Interface**: Full-featured CLI for configuration inspection and validation
+- **File Discovery**: Automatic discovery of environment-specific configuration files
+- **Error Handling**: Graceful handling of missing or invalid configuration files
 - **Simple API**: Clean, minimal interface with sensible defaults
 
 ## Installation
 
-Since this is an open-source project, install it by cloning the repository:
+Since TinyConfig is a local project, you can use it directly from your project structure:
 
 ```bash
 
-# Clone the repository
+# Clone or copy the TinyConfig folder into your project
 
-git clone https://github.com/abyayel/TinyConfig.git
-cd TinyConfig
+# Ensure required dependencies are installed
 
-# Install required dependencies
-
-npm install
-
-# Optional: Install additional parsers for full format support
-
-# Note: These are only needed if you want TOML or XML support
-
-npm install toml xml2js
+npm install express cors helmet morgan js-yaml dotenv
 ```
 
 ## Quick Start
 
-### 1. Create Configuration Files
+### 1. Basic Usage
 
-Create these configuration files in your project directory:
+```javascript
+const { loadConfig } = require("./TinyConfig/src/index");
 
-- `.env.example` (Template for environment variables - rename to `.env` for actual use)
+// Load configuration with default paths
+const config = loadConfig();
 
-```env
-
-# Environment Variables Template
-
-# Copy this to .env and fill in your actual values
-
-API_KEY=my_secret_key_123
-DATABASE_URL=mongodb://localhost:27017/mydb
-DEBUG=true
+// Access configuration values
+console.log(config.NODE_ENV); // Environment from .env
+console.log(config.server.port); // Server port from YAML
+console.log(config.api.basePath); // API base path from JSON
 ```
 
-- `config.json` (JSON configuration file for structured settings)
+### 2. Express.js Integration
+
+```javascript
+const express = require("express");
+const { loadConfig } = require("./TinyConfig/src/index");
+
+const config = loadConfig({
+  envPath: "config/.env",
+  jsonPaths: "config/config.json",
+  yamlPaths: "config/config.yaml",
+  iniPaths: "config/database.ini",
+});
+
+const app = express();
+const PORT = config.server?.port || config.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running in ${config.NODE_ENV} mode on port ${PORT}`);
+});
+```
+
+### 3. Configuration Structure
+
+Create these configuration files in your project:
+
+#### config/.env (Environment variables - highest priority):
+
+```bash
+NODE_ENV=development
+PORT=3000
+LOG_LEVEL=info
+API_KEY=your_api_key_here
+DATABASE_URL=postgresql://username:password@localhost:5432/database
+```
+
+#### config/config.yaml (YAML configuration - second priority):
+
+```yaml
+server:
+port: 3000
+host: "0.0.0.0"
+timeout: 30000
+
+database:
+host: "localhost"
+port: 5432
+name: "demo_db"
+
+logging:
+level: "info"
+format: "combined"
+```
+
+#### config/config.json (JSON configuration - third priority):
 
 ```json
 {
-  "server": {
-    "port": 3000,
-    "host": "localhost"
+  "api": {
+    "basePath": "/api/v1",
+    "version": "1.0.0",
+    "docsEnabled": true
   },
-  "features": {
-    "cache": true,
-    "logging": false
+  "security": {
+    "jwtSecret": "your-jwt-secret-key-change-in-production",
+    "jwtExpiry": "24h"
   }
 }
 ```
 
-- `config.yaml` (YAML configuration file - alternative to JSON with cleaner syntax)
+#### config/database.ini (INI configuration - lowest priority):
 
-```yaml
-server:
-port: 8080
-name: "TinyConfig Server"
+```ini
+[postgres]
+host=localhost
+port=5432
+database=demo_db
+username=postgres
 
-database:
-connectionPool: 10
-timeout: 5000
-
-features:
-cache: false
-analytics: true
-```
-
-### 2. Using Environment Variables
-
-Environment variables in `.env` files are ideal for sensitive data like API keys and database credentials. TinyConfig automatically loads these and merges them with other configuration sources.
-
-### 3. Use TinyConfig in Your Application
-
-```javascript
-// Import TinyConfig from the local installation
-const { loadConfig } = require("./path/to/TinyConfig/src/index");
-
-// Load with default settings
-const config = loadConfig();
-
-console.log(config.API_KEY); // "my_secret_key_123" (from .env)
-console.log(config.server.port); // 8080 (from YAML, overrides JSON)
-console.log(config.features.cache); // false (from YAML, overrides JSON)
-console.log(config.features.logging); // false (from JSON)
-console.log(config.database.timeout); // 5000 (from YAML)
+[redis]
+host=localhost
+port=6379
 ```
 
 ## Command Line Interface
 
-TinyConfig includes a powerful CLI for configuration management. Run these commands from your terminal in the project directory:
+TinyConfig includes a comprehensive CLI for configuration management:
 
 ```bash
 
-# Navigate to the project directory
+# Show merged configuration (with system environment variables filtered)
 
-cd TinyConfig
+node TinyConfig/bin/tiny-config show
 
-# Show merged configuration (outputs JSON)
+# List all configuration files and their status
 
-node bin/tiny-config.js show
+node TinyConfig/bin/tiny-config list
 
 # Validate configuration files
 
-node bin/tiny-config.js validate
+node TinyConfig/bin/tiny-config validate
 
-# Create .env template file
+# Check for required configuration fields
 
-node bin/tiny-config.js generate-env
+node TinyConfig/bin/tiny-config check
 
-# Check for required fields in configuration
+# Generate .env template file
 
-node bin/tiny-config.js check
+node TinyConfig/bin/tiny-config generate-env
+
+# Show configuration for specific environment
+
+node TinyConfig/bin/tiny-config env production
 ```
 
 ## API Reference
 
 ### Core Functions
 
-#### `loadConfig(options)`
+#### loadConfig(options)
 
-Load and merge configuration from multiple sources.
+Load and merge configuration from multiple file formats.
 
-**Parameters:**
+Options:
 
-- `options.envPath (String|Array)`: Path(s) to .env file(s) (default: '.env')
-- `options.jsonPaths (String|Array)`: Path(s) to JSON file(s) (default: 'config.json')
-- `options.yamlPaths (String|Array)`: Path(s) to YAML file(s) (default: ['config.yaml', 'config.yml'])
-- `options.tomlPaths (String|Array)`: Path(s) to TOML file(s) (default: 'config.toml')
-- `options.xmlPaths (String|Array)`: Path(s) to XML file(s) (default: 'config.xml')
-- `options.iniPaths (String|Array)`: Path(s) to INI file(s) (default: 'config.ini')
-- `options.priority (Array)`: Merge priority order (default: ['env', 'yaml', 'json', 'toml', 'xml', 'ini'])
-- `options.silent (Boolean)`: Suppress file not found warnings (default: false)
+- **envPath** (String|Array): Path(s) to .env file(s) (default: "config/.env")
+- **jsonPaths** (String|Array): Path(s) to JSON file(s) (default: "config/config.json")
+- **yamlPaths** (String|Array): Path(s) to YAML file(s) (default: "config/config.yaml")
+- **iniPaths** (String|Array): Path(s) to INI file(s) (default: "config/database.ini")
+- **priority** (Array): Merge priority order (default: ["env", "yaml", "json", "ini"])
 
-**Returns**: Merged configuration object
+Returns: Merged configuration object
 
-**Example:**
+Example:
 
 ```javascript
 const config = loadConfig({
-  envPath: [".env.local", ".env"],
-  jsonPaths: ["config.default.json", "config.override.json"],
-  yamlPaths: "config.production.yaml",
-  priority: ["env", "json", "yaml"], // Custom priority
+  envPath: ["config/.env.local", "config/.env"],
+  jsonPaths: ["config/config.production.json", "config/config.json"],
+  priority: ["env", "json", "yaml"],
 });
 ```
 
-#### `tinyConfig(options)`
+#### detectEnvironment()
 
-Alias for `loadConfig(options)`.
+Detect the current environment from environment variables.
 
-### Validation Functions
+Returns: Environment string ("development", "test", "production", or custom)
 
-#### `validateWithSchema(config, schema)`
+### File Loaders
 
-Validate configuration against a schema with type checking and rules.
+Individual file format loaders are available for advanced use cases:
 
-**Schema Example:**
+- **loadEnv(filePaths)**: Load environment variables from .env files
+- **loadJson(filePaths)**: Load configuration from JSON files
+- **loadYaml(filePaths)**: Load configuration from YAML files
+- **loadIni(filePaths)**: Load configuration from INI files
+
+Example:
 
 ```javascript
-const schema = {
-  API_KEY: { required: true, type: "string" },
-  server: {
-    port: { type: "number", min: 1, max: 65535 },
-    host: { type: "string", default: "localhost" },
-  },
-};
+const { loadJson, loadYaml } = require("./TinyConfig/src/index");
+const jsonConfig = loadJson("config/custom.json");
+const yamlConfig = loadYaml("config/custom.yaml");
 ```
-
-#### `createSchema(rules)`
-
-Helper function to create validation schemas.
-
-### Environment Functions
-
-- `detectEnvironment()`: Detect current environment (development, test, production).
-- `loadEnvironmentConfig(env, options)`: Load environment-specific configuration.
-- `isProduction()`, `isDevelopment()`, `isTesting()`: Environment helper functions.
-
-### Advanced Merging Functions
-
-- `mergeWithStrategy(target, source, strategy)`: Merge objects with custom strategy (override, merge-deep, shallow-merge, concat-arrays, prepend-arrays).
-- `mergeWithPriorityMap(configs, priorityMap)`: Merge with per-key priority rules.
-- `transformValues(config, transformers)`: Transform configuration values with custom functions.
-
-### File Loader Functions
-
-- `loadToml(filePaths)`, `loadXml(filePaths)`, `loadIni(filePaths)`: Individual file format loaders for advanced use.
 
 ### Priority System
 
 Configuration sources are merged with the following priority (highest to lowest):
 
-- **.env files** (Environment variables - for secrets and sensitive data)
-- **YAML files** (config.yaml, config.yml - human-readable format)
-- **JSON files** (config.json - structured configuration)
-- **TOML files** (config.toml - simple configuration format)
-- **XML files** (config.xml - legacy/enterprise systems)
-- **INI files** (config.ini - Windows-style configuration)
+- **.env files** - Environment variables (for sensitive data and environment-specific settings)
+- **YAML files** - Human-readable configuration format
+- **JSON files** - Standard structured configuration format
+- **INI files** - Simple key-value configuration format
 
-Within each type, files are processed in order (last file overrides previous ones).
+Within each format type, files are loaded in the order specified, with later files overriding earlier ones.
 
-## Examples
+### Environment-Specific Configuration
 
-See the [examples/](examples/) directory for comprehensive usage patterns:
-
-- `basic-usage.js` - Basic configuration loading demonstration
-- `express-server.js` - Express.js integration example
-- `cli-tool-advanced.js` - Advanced CLI usage patterns
-- `react-app-example.md` - React application integration guide
-
-## Running Tests
+TinyConfig automatically looks for environment-specific configuration files:
 
 ```bash
 
-# Run all tests
+# For NODE_ENV=production, TinyConfig will look for:
 
-npm test
+# - config/.env.production then config/.env
 
-# Run comprehensive integration test
+# - config/config.production.yaml then config/config.yaml
 
-node test-everything.js
+# - config/config.production.json then config/config.json
+
+# - config/database.production.ini then config/database.ini
+
 ```
 
-## File Format Support Details
+### Error Handling
 
-**Supported Formats:**
+TinyConfig provides graceful error handling:
 
-- `.env`: Environment variables (via dotenv package) - Ideal for sensitive data
-- `JSON`: Standard JSON files - Structured configuration format
-- `YAML`: YAML files (via js-yaml package) - Human-readable alternative to JSON
-- `TOML`: Requires toml package (optional) - Simple configuration format
-- `XML`: Requires xml2js package (optional) - For legacy system integration
-- `INI`: Built-in parser (no dependencies) - Windows-style configuration files
-
-**Installation for Full Support:**
-
-```bash
-
-# Note: These packages are optional and only needed if you require TOML or XML support
-
-npm install toml xml2js
-```
+- Missing files are logged as warnings but don't cause failures
+- Invalid file formats are reported with descriptive error messages
+- The library falls back to environment variables if configuration loading fails
+- Individual file loaders include try-catch blocks to prevent cascading failures
 
 ## Project Structure
 
 ```bash
 TinyConfig/
 ├── src/
-│ ├── loaders/ # File format loaders (.env, JSON, YAML, TOML, XML, INI)
-│ ├── strategies/ # Merging strategies and priority logic
-│ ├── validation/ # Schema validation system
-│ ├── environments/ # Environment detection and loading
-│ └── index.js # Main entry point and API
+│ ├── index.js # Main entry point and public API
+│ ├── environmentLoader.js # Environment detection and loading
+│ └── loaders/ # File format loaders
+│ ├── envLoader.js # .env file loader
+│ ├── jsonLoader.js # JSON file loader
+│ ├── yamlLoader.js # YAML file loader
+│ └── iniloader.js # INI file loader
 ├── bin/
-│ └── tiny-config.js # Command Line Interface tool
-├── types/
-│ └── index.d.ts # TypeScript definitions for IDE support
-├── examples/ # Usage examples and integration patterns
-├── tests/ # Test files and validation suite
-└── config files # Example configuration files
+│ └── tiny-config # Command Line Interface
+└── strategies/ # Configuration merging strategies
 ```
 
-## Contributing
+## Best Practices
 
-We welcome contributions! Please see our `CONTRIBUTING.md` file for detailed guidelines on how to contribute to this project.
+- **Store sensitive data in .env files** - These are typically excluded from version control
+- **Use YAML for complex nested configurations** - More readable than JSON for deeply nested structures
+- **Use JSON for API configurations and structured data** - Good for machine-generated configurations
+- **Use INI for simple key-value pairs** - Ideal for database connections and service configurations
+- **Always provide environment-specific overrides** - Create .env.production, config.production.yaml, etc.
+- **Validate required configuration** - Use the CLI's check command to ensure required fields are present
 
-**Contribution Process:**
+## Integration Example
 
-- Fork the repository
-- Create a feature branch (git checkout -b feature/amazing-feature)
-- Commit your changes (git commit -m 'Add amazing feature')
-- Push to the branch (git push origin feature/amazing-feature)
-- Open a Pull Request
+```javascript
+// server.js - Complete Express.js integration example
+const express = require("express");
+const { loadConfig } = require("./TinyConfig/src/index");
 
-**Development Guidelines:**
+// Load configuration
+const config = loadConfig();
 
-- Follow existing code style and conventions
-- Add tests for new features
-- Update documentation as needed
-- Ensure all tests pass before submitting
+// Configure Express with loaded settings
+const app = express();
+app.set("port", config.server?.port || 3000);
+app.set("env", config.NODE_ENV || "development");
 
-## Code of Conduct
+// Middleware configuration based on config
+if (config.features?.enableRequestLogging) {
+  const morgan = require("morgan");
+  app.use(morgan(config.logging?.format || "combined"));
+}
 
-Please read our `CODE_OF_CONDUCT.md` before participating in this project. We are committed to providing a welcoming and inclusive environment for all contributors.
+// Database connection using config
+if (config.database) {
+  const pool = require("pg").Pool;
+  const db = new pool({
+    host: config.database.host,
+    port: config.database.port,
+    database: config.database.name,
+    user: config.postgres?.username,
+    password: config.postgres?.password,
+  });
+}
+
+// Start server
+app.listen(app.get("port"), () => {
+  console.log(
+    `Server running in ${app.get("env")} mode on port ${app.get("port")}`
+  );
+});
+```
+
+## Troubleshooting
+
+### Common Issues
+
+- **Configuration not loading**: Ensure files are in the correct directory (config/ folder by default)
+- **Environment variables not appearing**: Check that .env files are properly formatted (KEY=VALUE format)
+- **Priority conflicts**: Verify merge order in the priority array matches your requirements
+- **File not found warnings**: These are informational; TinyConfig will continue with available files
+
+### Debugging
+
+Enable detailed logging by checking the console output:
+
+```bash
+
+# The list command shows which files are found
+
+node TinyConfig/bin/tiny-config list
+
+# The validate command reports on configuration loading success
+
+node TinyConfig/bin/tiny-config validate
+```
+
+## Dependencies
+
+- **js-yaml**: YAML file parsing (required for YAML support)
+- **dotenv**: .env file parsing (required for environment variable support)
+
+Install with:
+
+```bash
+npm install js-yaml dotenv
+```
+
+Optional dependencies for additional formats (not included in current version):
+
+- **toml**: TOML file parsing
+- **xml2js**: XML file parsing
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is available for use under standard open-source licensing terms. See the project repository for detailed license information.
 
-**Key Points:**
+```
 
-- Permission is granted for commercial use, modification, distribution, and private use
-- The software is provided "as is" without warranty
-- License and copyright notices must be preserved
-
-## Team
-
-This project was developed collaboratively by:
-
-- [Abyayel Abebaye] - Project Lead, CLI & TypeScript implementation
-- [Aelaf Tsegaye] - File Format Extensions (TOML, XML, INI loaders)
-- [Firaol Tesfaye] - Advanced Merging Strategies and algorithms
-- [Alen Wondwosen] - Configuration Validation System
-- [Abele Maru] - Environment & Deployment Support
-- [Abraham Adugna] - Integration Examples and documentation
-
-## Acknowledgments
-
-- Built with Node.js - JavaScript runtime environment
-- Uses dotenv for .env file parsing and environment variable management
-- Uses js-yaml for YAML file parsing with safety features
-- TOML support via toml package (optional dependency)
-- XML support via xml2js package (optional dependency)
-- Inspired by the need for simplified configuration management in modern Node.js applications
+```

@@ -1,0 +1,5 @@
+# config.toml
+API_KEY = "toml-api-key"
+DATABASE_URL = "toml-database-url"
+DEBUG = false
+LOG_LEVEL = "error"
