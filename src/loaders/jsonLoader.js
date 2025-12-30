@@ -8,9 +8,13 @@ function loadJson(filePaths = "config.json") {
   paths.forEach((filePath) => {
     const absolutePath = path.resolve(process.cwd(), filePath);
     if (fs.existsSync(absolutePath)) {
-      const data = fs.readFileSync(absolutePath, "utf8");
-      const config = JSON.parse(data);
-      mergedConfig = { ...mergedConfig, ...config };
+      try {
+        const data = fs.readFileSync(absolutePath, "utf8");
+        const config = JSON.parse(data);
+        mergedConfig = { ...mergedConfig, ...config };
+      } catch (error) {
+        console.warn(`Failed to load JSON file ${filePath}:`, error.message);
+      }
     }
   });
 
